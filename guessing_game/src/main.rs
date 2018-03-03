@@ -19,11 +19,11 @@ fn guessing_game() -> String{
     io::stdin().read_line(&mut guess)
         .expect("failed to read your input");
 
-    assert!(num_re.is_match(&guess), "you guess is not a number, we can't play...");
+    assert!(num_re.is_match(&guess), "your guess is not a number, we can't play...");
 
     let numeric_guess = guess.trim().parse::<i32>().unwrap();
     assert!(numeric_guess <= max_rand,
-        format!("you guess is bigger than {}, go smaller...", max_rand));
+        format!("your guess is bigger than {}, go smaller...", max_rand));
     println!("your guess: {}", guess);
 
     match numeric_guess.cmp(&random_num){
