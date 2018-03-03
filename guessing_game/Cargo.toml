@@ -1,0 +1,8 @@
+[package]
+name = "guessing_game"
+version = "0.1.0"
+authors = ["koi <koriatoren@gmail.com>"]
+
+[dependencies]
+rand = "0.3.14"
+regex = "0.2"
