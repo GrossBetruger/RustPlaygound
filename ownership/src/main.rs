@@ -1,3 +1,25 @@
+fn takes_ownership(s: String){
+    println!("I own: {}", s);
+}
+
+
+fn copies(x: i32){
+    println!("copied {}, and printed it proudly", x);
+}
+
+
+fn gives_ownership() -> String {
+    let ret_val = String::from("returned value");
+    ret_val
+}
+
+
+
+fn takes_and_gives_back(s: String) -> String {
+    s
+}
+
+
 fn main() {
     { // s is not valid here
 
@@ -37,4 +59,25 @@ fn main() {
     let y = x;
 //  valid without clone, because primitives are copied by default (implementing the Copy trait)
     println!("x = {}, y = {}", x, y);
+
+    let argument = String::from("arg string");
+
+    takes_ownership(argument);
+//    function takes ownership of argument, var argument is invalidated
+//    println!("printing the invalid: {}", argument); // will cause a 'use of moved value err'
+
+    let scalar = 22;
+
+    copies(scalar);
+
+    println!("what do you know, {} is still valid!", scalar);
+
+
+    let yet_another_str = gives_ownership();
+
+    let pushed_around = takes_and_gives_back(yet_another_str);
+
+    println!("still valid in this scope: {}", pushed_around);
+
+//    println!("not so valid anymore: {}", yet_another_str); // the compiler's not gonna like this one
 }
