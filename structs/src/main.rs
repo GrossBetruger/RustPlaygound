@@ -37,6 +37,9 @@ fn increment_sign_in(mut user: User) -> User {
 }
 
 
+struct QuitMessage; // unit struct
+
+
 fn main() {
 
     let mut shimshon = User {
