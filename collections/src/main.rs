@@ -1,7 +1,8 @@
 //#![feature(iterator_step_by)]
 
 use std::collections::HashMap;
-
+use std::fs::File;
+use std::io::prelude::*;
 
 #[derive(Debug)]
 enum SpreedSheetCell {
@@ -148,12 +149,45 @@ fn main() {
     let teams = vec!["Red", "Blue"];
     let initial_scores = vec![2, 10];
 
-    let scores: HashMap<_, _> = teams.iter().zip(initial_scores.iter()).collect();
+    let mut scores: HashMap<_, _> = teams.iter().zip(initial_scores.iter()).collect();
 
+    println!("{:?}", scores);
     println!("Red score: {:?}", scores.get(&"Red").unwrap_or(&&-1)); // value is Some(&2), so we need a clumsy unwrap
 
+    scores.insert(&"Blue", &11);
 //    iterating over a hashmap
     for (key, val) in &scores {
         println!("key: {}, value: {}", key, val);
+    }
+
+//    insert only if key doesn't exist using the 'entry' API
+
+    scores.entry(&"Blue").or_insert(&100);
+    scores.entry(&"Purple").or_insert(&200);
+    println!();
+    for (k, v) in &scores {
+        println!("key: {}, value: {}", k, v);
+    }
+
+//    count words in text
+
+    let mut f = File::open(&"rust_book_chapter.txt").expect("failed to open file");
+    let mut text = String::new();
+
+    f.read_to_string(&mut text).expect("couldn't read file to string");
+
+    let mut word_counter = HashMap::new();
+    for word in text.split_whitespace() {
+        let count = word_counter.entry(word).or_insert(0);
+        *count += 1;
+    }
+
+    println!();
+
+    for (k, v) in &word_counter {
+        if *v < 20 {
+            continue;
+        }
+        println!("{} -> count: {}", k, v);
     }
 }
