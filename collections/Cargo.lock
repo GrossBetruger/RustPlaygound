@@ -1,4 +1,14 @@
 [[package]]
 name = "collections"
 version = "0.1.0"
+dependencies = [
+ "reduce 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+]
 
+[[package]]
+name = "reduce"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[metadata]
+"checksum reduce 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "5f77b717415291f4d7929a111402316b272c566ae9d4b75a61507dba88ecbd89"

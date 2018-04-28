@@ -1,8 +1,12 @@
 //#![feature(iterator_step_by)]
 
+extern crate reduce;
+
+use reduce::Reduce;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::prelude::*;
+use std::collections::hash_map::Entry;
 
 #[derive(Debug)]
 enum SpreedSheetCell {
@@ -10,6 +14,43 @@ enum SpreedSheetCell {
     Float(f64),
     Text(String)
 }
+
+fn mean(list: Vec<i32>) -> f32 {
+    let list_length = list.len();
+    list.into_iter().reduce(|a, b| a + b).unwrap_or(0) as f32 / list_length as f32
+}
+
+fn median(list: Vec<i32>) -> f32 {
+    let length = list.len();
+    match length % 2 == 0 {
+
+        false => {
+                let idx = ((length / 2) as f32).ceil() as usize;
+                list[idx] as f32
+                },
+
+         true => {
+                 let idx1 = ((length / 2) as f32).floor() as usize -1;
+                 let idx2 = idx1 + 1;
+                 (list[idx1] + list[idx2]) as f32 / 2.
+                 }
+    }
+}
+
+fn mode(list: Vec<i32>) -> i32 {
+    let max = 0;
+    let mode = 0;
+
+    let mut counter = HashMap::new();
+    for n in list.iter() {
+        *counter.entry(n).or_insert(0) += 1;
+    }
+
+    let mut counter_vec: Vec<_> = counter.into_iter().collect();
+    counter_vec.sort_by(|a, b| b.1.cmp(&a.1));
+    return *counter_vec[0].0;
+}
+
 
 fn main() {
     let mut v: Vec<i32> = Vec::new();
@@ -190,4 +231,20 @@ fn main() {
         }
         println!("{} -> count: {}", k, v);
     }
+
+//    EXERCISES
+//    1
+//    Given a list of integers, return the mean, median , and mode.
+
+    let l: Vec<i32> = vec![1, 1, 2, 4, 5];
+    let l_odd = l.clone();
+    let l_even: Vec<i32> = vec![1, 1, 2, 4];
+
+    println!("mean: {}", mean(l));
+    println!("median even: {}", median(l_even));
+    println!("median odd: {}", median(l_odd));
+
+    let obivious_mode = vec![2, 6, 6, 77, 77, 77, 2, 0];
+    println!("and the mode is: {}", mode(obivious_mode));
+
 }

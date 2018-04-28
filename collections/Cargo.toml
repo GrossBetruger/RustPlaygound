@@ -4,3 +4,4 @@ version = "0.1.0"
 authors = ["koi <koriatoren@gmail.com>"]
 
 [dependencies]
+reduce = "0.1"
