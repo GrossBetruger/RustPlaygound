@@ -51,6 +51,36 @@ fn mode(list: Vec<i32>) -> i32 {
     return *counter_vec[0].0;
 }
 
+fn append_hay(s: &mut String) -> &mut String {
+    s.push_str("hay");
+    s
+}
+
+fn append_ay(s: &mut String) -> &String {
+    s.push_str("ay");
+    s
+}
+
+fn rotate_first(s: String) -> String{
+    let first = s.chars().take(1).collect::<String>();
+    let mut tail = s.chars().skip(1).collect::<String>();
+    tail.push_str(&first);
+    tail
+}
+
+fn first_is_vowel(input: &String) -> bool {
+    let first = input.to_lowercase().chars().next().unwrap();
+    let vowels: Vec<char> = vec!['a', 'e', 'i', 'o', 'u'];
+    vowels.iter().any(|v| first == *v)
+}
+
+fn pig_latin(input: &mut String)  -> &str{
+    match first_is_vowel(input) {
+        true => { append_hay(input)},
+        false => {"yo"}
+    }
+}
+
 
 fn main() {
     let mut v: Vec<i32> = Vec::new();
@@ -246,5 +276,21 @@ fn main() {
 
     let obivious_mode = vec![2, 6, 6, 77, 77, 77, 2, 0];
     println!("and the mode is: {}", mode(obivious_mode));
+
+//    EXERCISES
+//    2
+//    Given a list of integers, return the mean, median , and mode.
+
+    println!("hello rotate first: {}", rotate_first(String::from("hello")));
+    println!("नमस्ते rotate first: {}", rotate_first(String::from("नमस्ते")));
+    let mut ola = String::from("Ola");
+//    pig_latin(String::from("hello"));
+//    pig_latin(String::from("Ola"));
+//    pig_latin(ola);
+
+    println!("'Ola' in pig latin: '{}'", pig_latin(&mut ola));
+    println!("'aloha' in pig latin: '{}'", pig_latin(&mut String::from("aloha")));
+//    pig_latin(String::from("f do"));
+//    println!("'hello' first is vowel: {}", pig_latin(String::from("नमस्ते")));
 
 }
