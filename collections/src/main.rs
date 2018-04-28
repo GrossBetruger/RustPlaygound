@@ -6,7 +6,6 @@ use reduce::Reduce;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::prelude::*;
-use std::collections::hash_map::Entry;
 
 #[derive(Debug)]
 enum SpreedSheetCell {
@@ -51,33 +50,24 @@ fn mode(list: Vec<i32>) -> i32 {
     return *counter_vec[0].0;
 }
 
-fn append_hay(s: &mut String) -> &mut String {
-    s.push_str("hay");
-    s
-}
-
-fn append_ay(s: &mut String) -> &String {
-    s.push_str("ay");
-    s
-}
-
-fn rotate_first(s: String) -> String{
-    let first = s.chars().take(1).collect::<String>();
-    let mut tail = s.chars().skip(1).collect::<String>();
-    tail.push_str(&first);
-    tail
-}
-
 fn first_is_vowel(input: &String) -> bool {
     let first = input.to_lowercase().chars().next().unwrap();
     let vowels: Vec<char> = vec!['a', 'e', 'i', 'o', 'u'];
     vowels.iter().any(|v| first == *v)
 }
 
-fn pig_latin(input: &mut String)  -> &str{
-    match first_is_vowel(input) {
-        true => { append_hay(input)},
-        false => {"yo"}
+fn pig_latin(input: &mut String)  -> String{
+    match first_is_vowel(&input) {
+        true => {
+            input.to_owned() + "hay"
+
+        },
+        false => {
+            let first = input.chars().take(1).collect::<String>();
+            let headed = input.to_owned() + &first;
+            let tail = headed.chars().skip(1).collect::<String>();
+            tail + "ay"
+        }
     }
 }
 
@@ -281,16 +271,11 @@ fn main() {
 //    2
 //    Given a list of integers, return the mean, median , and mode.
 
-    println!("hello rotate first: {}", rotate_first(String::from("hello")));
-    println!("नमस्ते rotate first: {}", rotate_first(String::from("नमस्ते")));
     let mut ola = String::from("Ola");
-//    pig_latin(String::from("hello"));
-//    pig_latin(String::from("Ola"));
-//    pig_latin(ola);
-
     println!("'Ola' in pig latin: '{}'", pig_latin(&mut ola));
-    println!("'aloha' in pig latin: '{}'", pig_latin(&mut String::from("aloha")));
-//    pig_latin(String::from("f do"));
-//    println!("'hello' first is vowel: {}", pig_latin(String::from("नमस्ते")));
+    println!("'servile' in pig latin: '{}'", pig_latin(&mut String::from("servile")));
+    println!("'dango0' in pig latin: '{}'", pig_latin(&mut String::from("dango0")));
+    println!("'नमस्ते' in pig latin: '{}'", pig_latin(&mut String::from("नमस्ते")));
+
 
 }
