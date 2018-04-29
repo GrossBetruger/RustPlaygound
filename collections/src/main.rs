@@ -1,11 +1,15 @@
 //#![feature(iterator_step_by)]
 
 extern crate reduce;
+extern crate regex;
+
 
 use reduce::Reduce;
+use regex::Regex;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::prelude::*;
+use std::io;
 
 #[derive(Debug)]
 enum SpreedSheetCell {
@@ -13,6 +17,7 @@ enum SpreedSheetCell {
     Float(f64),
     Text(String)
 }
+
 
 fn mean(list: Vec<i32>) -> f32 {
     let list_length = list.len();
@@ -71,6 +76,26 @@ fn pig_latin(input: &mut String)  -> String{
     }
 }
 
+fn add_user(user: &str, department: &str, users: &mut HashMap<String, String>) {
+    users.insert(String::from(user), String::from(department));
+}
+
+fn process_input() -> String {
+    let mut input = String::new();
+    println!("enter command...");
+    io::stdin().read_line(& mut input);
+    return input;
+}
+
+fn parse_cmd(input: &str) -> (String, String) {
+    let add_user_re = Regex::new(r"(?i)add\s+(\w+)\s+to\s+(\w+)").unwrap();
+    let mut outputs: Vec<String> = Vec::new();
+    for cap in add_user_re.captures_iter(input) {
+        println!("captured: {:?}", cap);
+        return (String::from(&cap[1]), String::from(&cap[2]));;
+    }
+    panic!("illegal command!");
+}
 
 fn main() {
     let mut v: Vec<i32> = Vec::new();
@@ -277,5 +302,24 @@ fn main() {
     println!("'dango0' in pig latin: '{}'", pig_latin(&mut String::from("dango0")));
     println!("'नमस्ते' in pig latin: '{}'", pig_latin(&mut String::from("नमस्ते")));
 
+//    EXERCISES
+//    3
+//    create a text interface to allow a user to add employee names to a department in a company.
+//    Then let the user retrieve a list of all people in a department or all people in the company by department
+//    sorted alphabetically.
+
+    let mut users: HashMap<String, String> = HashMap::new();
+    add_user("Gilad", "RnD", &mut users);
+    add_user("Dango", "RnD", &mut users);
+
+    println!("users: {:?}", users);
+
+    let (user, company) = parse_cmd("add user to RnD");
+    println!("user: {}, company: {}", user, company);
+
+    let cmd = process_input();
+    let (user, company) = parse_cmd(&cmd);
+    add_user(&user, &company, &mut users);
+    println!("users: {:?}", users);
 
 }

@@ -5,3 +5,4 @@ authors = ["koi <koriatoren@gmail.com>"]
 
 [dependencies]
 reduce = "0.1"
+regex = "0.2"
