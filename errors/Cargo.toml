@@ -1,0 +1,9 @@
+[package]
+name = "errors"
+version = "0.1.0"
+authors = ["oren <oren@cynerio.co>"]
+
+[dependencies]
+
+[profile.release]
+panic = 'abort'
