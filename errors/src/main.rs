@@ -1,6 +1,7 @@
 use std::io;
 use std::io::Read;
 use std::fs::File;
+use std::net::IpAddr;
 
 fn open_or_fail() -> File {
     File::open("not_here").unwrap()
@@ -51,6 +52,9 @@ fn read_text_from_file_sugar() -> Result<String, io::Error> {
 
 fn main() {
 
+    let home: IpAddr = "127.0.0.1".parse().unwrap(); // no reason to expect an Err, unwrap is in order
+
+//    let wont_compile = File::open("file")?; // won't compile - main doesnt return Result
     let text = read_text_from_file();
     println!("{}", text.unwrap());
     let sugar_text = read_text_from_file_sugar();
