@@ -1,0 +1,7 @@
+[package]
+name = "stackoverflow"
+version = "0.1.0"
+authors = ["oren"]
+
+[dependencies]
+regex = "0.2"
