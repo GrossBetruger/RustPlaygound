@@ -59,7 +59,7 @@ fn parse_pcaps(pcaps: Vec<PathBuf>) -> HashMap<Ipv4Addr, Ipv4Addr> {
                         },
 
                         Err(e) => {
-                            return unique_edges;
+                            break;
                         }
                     };
                 }
