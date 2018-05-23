@@ -82,38 +82,24 @@ fn main() {
 
     println!(" OPT = {:?}", opt);
 
-    let mut g = Graph::<&str, i32, petgraph::Undirected>::new_undirected();
+    let mut g = Graph::<Ipv4Addr, u32, petgraph::Undirected>::new_undirected();
 
     println!("parsing packets...");
     let unique_edges = parse_pcaps(opt.pcaps);
     println!("Done parsing!");
+    //     Create a new undirected graph, g
+    let w = 0;
+    let mut v = Vec::new();
+    let mut idx = 0;
     for (src_ip, dst_ip) in unique_edges {
         println!("{}, {}", src_ip, dst_ip);
+        v.push(g.add_node(src_ip));
+        v.push(g.add_node(dst_ip));
+        g.add_edge(v[idx], v[idx+1], 0);
+        idx += 1;
+
     }
 
-//     Create a new undirected graph, g
-//    let w = 0;
-//    let mut v = Vec::new();
-
-//    // Add 10 vertices to G
-//    for i in 1..11 {
-//        v.push(g.add_node("some_ip"));
-//    }
-//
-//    // Connect with 15 edges
-//    for i in 0..4 {
-//        g.add_edge(v[i], v[i + 1], w);
-//        g.add_edge(v[i], v[i + 5], w);
-//    }
-//    g.add_edge(v[0], v[4], w);
-//    g.add_edge(v[4], v[9], w);
-//
-//    g.add_edge(v[5], v[7], w);
-//    g.add_edge(v[5], v[8], w);
-//    g.add_edge(v[6], v[8], w);
-//    g.add_edge(v[6], v[9], w);
-//    g.add_edge(v[7], v[9], w);
-//
 //    // Print in graphviz dot format
-//    println!("{:?}", Dot::with_config(&g, &[Config::EdgeNoLabel]));
+    println!("{:?}", Dot::with_config(&g, &[Config::EdgeNoLabel]));
 }
