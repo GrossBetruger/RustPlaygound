@@ -1,0 +1,16 @@
+[package]
+name = "graphs"
+version = "0.1.0"
+authors = ["oren <oren@cynerio.co>"]
+
+
+[dependencies]
+petgraph = "0.4.12"
+pcap = "0.2"
+structopt = "0.2"
+
+
+[dependencies.pnet]
+version = "0.21"
+features = ["pcap"]
+
