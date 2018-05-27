@@ -50,6 +50,13 @@ fn search(pattern: Regex, text: &str) ->  bool {
     found
 }
 
+fn search_case_insensitive(pattern: &str, text: &str) -> bool {
+   let mut insensitive_pattern = String::from("(?i)");
+   insensitive_pattern.push_str(&pattern);
+   return search(Regex::new(&insensitive_pattern).unwrap(), text)
+}
+
+
 #[cfg(test)]
 mod test {
 
@@ -71,5 +78,14 @@ mod test {
             "Rust: safe, fast, productive. Pick three."
         );
         assert!(!found, "non existing pattern was found!")
+    }
+
+       #[test]
+    fn test_search_case_insensitive() {
+        let found = search_case_insensitive(
+            "Safe",
+            "Rust: safe, fast, productive. Pick three."
+        );
+        assert!(found, "pattern was not found!")
     }
 }
