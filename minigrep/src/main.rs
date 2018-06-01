@@ -13,7 +13,7 @@ fn main() {
 
     let config = Config::new(&args).unwrap(); // parse_cli
     if let Err(e) = run(config) {
-        println!("application error: {}", e);
+        eprintln!("application error: {}", e);
         process::exit(1);
     }
 }
