@@ -8,7 +8,8 @@ use regex::Regex;
 
 pub struct Config {
     pattern: String,
-    filename: String
+    filename: String,
+    case_sensitive: bool
 }
 
 impl Config {
@@ -18,7 +19,9 @@ impl Config {
         }
         let pattern = args[1].clone();
         let filename = args[2].clone();
-        Ok(Config { pattern, filename })
+        // if "CASE_INSENSITIVE" env variable doesn't exist is_err() returns true
+        let case_sensitive = env::var("CASE_INSENSITIVE").is_err();
+        Ok(Config { pattern, filename, case_sensitive })
     }
 }
 
@@ -31,15 +34,18 @@ pub fn run(config: Config) -> Result<(), Box<Error>> {
     f.read_to_string(&mut text);
     println!("content:\n{}", text);
 
-    let pattern = Regex::new(&config.pattern)?;
+    let pattern = &config.pattern;
 
-    search(pattern, &text);
+    if config.case_sensitive {
+        search(pattern, &text);
+    }
+    else { search_case_insensitive(pattern, &text); }
     Ok(())
 
 }
 
-fn search(pattern: Regex, text: &str) ->  bool {
-    println!();
+fn search(pattern: &str, text: &str) ->  bool {
+    let pattern = Regex::new(&pattern).unwrap();
     let found = pattern.is_match(text);
     if found {
         println!("pattern found! '{}'", pattern);
@@ -53,7 +59,7 @@ fn search(pattern: Regex, text: &str) ->  bool {
 fn search_case_insensitive(pattern: &str, text: &str) -> bool {
    let mut insensitive_pattern = String::from("(?i)");
    insensitive_pattern.push_str(&pattern);
-   return search(Regex::new(&insensitive_pattern).unwrap(), text)
+   return search(&insensitive_pattern, text)
 }
 
 
@@ -65,7 +71,7 @@ mod test {
     #[test]
     fn test_search() {
         let found = search(
-            Regex::new("fast,\\s+\\w+").unwrap(),
+            "fast,\\s+\\w+",
             "Rust: safe, fast, productive. Pick three."
         );
         assert!(found, "pattern not found!")
@@ -74,7 +80,7 @@ mod test {
     #[test]
     fn neg_test_search() {
         let found = search(
-            Regex::new("Java").unwrap(),
+            "Java",
             "Rust: safe, fast, productive. Pick three."
         );
         assert!(!found, "non existing pattern was found!")
