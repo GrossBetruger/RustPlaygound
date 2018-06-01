@@ -33,15 +33,19 @@ pub fn run(config: Config) -> Result<(), Box<Error>> {
     let mut text = String::new();
     f.read_to_string(&mut text);
     println!("content:\n{}", text);
+    
+    search_by_case(config, &text);
+    Ok(())
 
+}
+
+fn search_by_case(config: Config, text: &str) -> bool {
     let pattern = &config.pattern;
 
     if config.case_sensitive {
-        search(pattern, &text);
+        search(pattern, &text)
     }
-    else { search_case_insensitive(pattern, &text); }
-    Ok(())
-
+    else { search_case_insensitive(pattern, &text)}
 }
 
 fn search(pattern: &str, text: &str) ->  bool {
@@ -67,6 +71,7 @@ fn search_case_insensitive(pattern: &str, text: &str) -> bool {
 mod test {
 
     use super::*;
+    use std::process::Command;
 
     #[test]
     fn test_search() {
@@ -86,7 +91,7 @@ mod test {
         assert!(!found, "non existing pattern was found!")
     }
 
-       #[test]
+    #[test]
     fn test_search_case_insensitive() {
         let found = search_case_insensitive(
             "Safe",
@@ -94,4 +99,28 @@ mod test {
         );
         assert!(found, "pattern was not found!")
     }
+
+
+    #[test]
+    fn test_env_variable() {
+        env::set_var("CASE_INSENSITIVE", "true");
+
+        let mut args = Vec::new();
+        args.push(String::from("mock_binary_arg"));
+        args.push(String::from("love"));
+        args.push(String::from("mock_file_path"));
+        let conf = Config::new(&args).unwrap();
+
+        let found = search_by_case(conf, "Love in all the wrong places");
+        assert!(found, "search was not case insensitive, environment var failed");
+
+        env::remove_var("CASE_INSENSITIVE");
+
+        let conf = Config::new(&args).unwrap();
+
+        let found = search_by_case(conf, "Love in all the wrong places");
+        assert!(!found, "search was case insensitive, even though env var doesn't exist");
+
+    }
+
 }
