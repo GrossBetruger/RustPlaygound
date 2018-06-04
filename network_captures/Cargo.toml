@@ -7,3 +7,7 @@ authors = ["oren <oren@cynerio.co>"]
 pcap = "0.7.0"
 pnet = "0.21.0"
 regex = "0.2"
+structopt = "0.2.8"
+custom_derive = "0.1.7"
+enum_derive = "0.1.7"
+

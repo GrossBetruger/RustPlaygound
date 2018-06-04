@@ -2,6 +2,10 @@ extern crate pcap;
 extern crate pnet;
 extern crate regex;
 
+#[macro_use] extern crate structopt;
+#[macro_use] extern crate custom_derive;
+#[macro_use] extern crate enum_derive;
+
 use pcap::Device;
 use pnet::datalink::{self, NetworkInterface};
 use pnet::datalink::Channel::Ethernet;
@@ -9,7 +13,7 @@ use pnet::packet::{Packet, MutablePacket};
 use pnet::packet::ethernet::{EthernetPacket, MutableEthernetPacket};
 use pnet::packet::ipv4::Ipv4Packet;
 use pnet::packet::ip::IpNextHeaderProtocols;
-use pnet::packet::tcp::TcpPacket;
+use pnet::packet::tcp::{TcpPacket, MutableTcpPacket};
 use pnet::packet::ethernet::EtherTypes;
 use std::prelude::v1::Option::None;
 use std::env;
@@ -17,6 +21,7 @@ use regex::Regex;
 use std::str;
 use pnet::packet::ip::IpNextHeaderProtocols::Tcp;
 use pnet::packet::ip::IpNextHeaderProtocols::Udp;
+use structopt::StructOpt;
 
 fn get_interface(interface_name: &str) -> NetworkInterface {
     let interface_names_match =
@@ -47,7 +52,7 @@ fn search_pattern(pattern: &str, payload: &str) {
 
 }
 
-fn get_tcp_packet(ipv4_ethernet_packet: EthernetPacket) {
+fn search_in_tcp(ipv4_ethernet_packet: EthernetPacket, pattern: &str) {
     let header = Ipv4Packet::new(ipv4_ethernet_packet.payload());
     if let Some(header) = header {
             if header.get_next_level_protocol() == Tcp  {
@@ -59,14 +64,40 @@ fn get_tcp_packet(ipv4_ethernet_packet: EthernetPacket) {
                 println!("tcp - from: {}:{} to: {}:{}", src_ip, src_port, dst_ip, dst_port);
                 let tcp_payload = tcp_packet.payload();
 
-                search_pattern(r".+", &String::from_utf8_lossy(&tcp_payload))
+                search_pattern(pattern, &String::from_utf8_lossy(&tcp_payload))
             }
 
         }
     }
 
+custom_derive! {
+    #[derive(Debug, PartialEq, EnumDisplay, EnumFromStr)]
+    enum Sieve  {
+        whitelist,
+        blacklist
+    }
+}
+
+#[derive(Debug, StructOpt)]
+#[structopt(name = "pcapgrep", about = "Run grep on a pcap file.")]
+struct Opt {
+    #[structopt(short = "d", long = "debug", help = "Activate debug mode")]
+    debug: bool,
+    #[structopt(short = "s", long = "sieve", help = "ip and port sieve mode (whitelist/blacklist)")]
+    sieve: Option<Sieve>,
+//    #[structopt(long = "format", help = "How to format output")]
+//    format: FormatOutput,
+    #[structopt(long = "pattern", help = "Pattern to search")]
+    pattern: Option<Regex>,
+    #[structopt(long = "ip", help = "IP to filter")]
+    ip: Option<String>,
+    #[structopt(long = "port", help = "Port to filter")]
+    port: Option<u16>,
+}
 
 fn main() {
+
+    let opt = Opt::from_args();
 
     let interface_name = Device::lookup().unwrap().name;
     println!("capturing from network interface: {}", interface_name);
@@ -84,7 +115,7 @@ fn main() {
                 match  get_ipv4_ethernet_packet(packet) {
                     Some(ether) => {
 //                        println!("found ether!");
-                        get_tcp_packet(ether);
+                        search_in_tcp(ether, opt.pattern.unwrap());
                     },
                     None => continue
                 }
