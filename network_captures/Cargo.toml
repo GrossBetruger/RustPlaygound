@@ -5,3 +5,4 @@ authors = ["oren <oren@cynerio.co>"]
 
 [dependencies]
 pcap = "0.7.0"
+pnet = "0.21.0"

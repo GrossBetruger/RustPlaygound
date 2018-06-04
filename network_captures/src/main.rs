@@ -1,13 +1,83 @@
 extern crate pcap;
 use pcap::Device;
 
+
+extern crate pnet;
+
+use pnet::datalink::{self, NetworkInterface};
+use pnet::datalink::Channel::Ethernet;
+use pnet::packet::{Packet, MutablePacket};
+use pnet::packet::ethernet::{EthernetPacket, MutableEthernetPacket};
+use pnet::packet::tcp::TcpPacket;
+use pnet::packet::ethernet::EtherTypes;
+
+
+use std::env;
+
+// Invoke as echo <interface name>
 fn main() {
-    let mut cap = Device::lookup().unwrap().open().unwrap();
+     let main_device = Device::lookup().unwrap().name;
 
-    let main_device = Device::lookup().unwrap();
-    println!("main device: {:?}", main_device);
+    let interface_name = main_device; //env::args().nth(1).unwrap();
+    let interface_names_match =
+        |iface: &NetworkInterface| iface.name == interface_name;
 
-    while let Ok(packet) = cap.next() {
-        println!("received packet! {:?}", packet);
+    // Find the network interface with the provided name
+    let interfaces = datalink::interfaces();
+    let interface = interfaces.into_iter()
+                              .filter(interface_names_match)
+                              .next()
+                              .unwrap();
+
+    // Create a new channel, dealing with layer 2 packets
+    let (mut tx, mut rx) = match datalink::channel(&interface, Default::default()) {
+        Ok(Ethernet(tx, rx)) => (tx, rx),
+        Ok(_) => panic!("Unhandled channel type"),
+        Err(e) => panic!("An error occurred when creating the datalink channel: {}", e)
+    };
+
+    loop {
+        match rx.next() {
+            Ok(packet) => {
+                let ethernet_packet = EthernetPacket::new(packet).unwrap();
+                match ethernet_packet.get_ethertype() {
+                    EtherTypes::Ipv4 => println!("ipv4"),
+                    _ => {}
+                }
+
+                // Constructs a single packet, the same length as the the one received,
+                // using the provided closure. This allows the packet to be constructed
+                // directly in the write buffer, without copying. If copying is not a
+                // problem, you could also use send_to.
+                //
+                // The packet is sent once the closure has finished executing.
+//                tx.build_and_send(1, packet.packet().len(),
+//                    &mut |mut new_packet| {
+//                        let mut new_packet = MutableEthernetPacket::new(new_packet).unwrap();
+//
+//                        // Create a clone of the original packet
+//                        new_packet.clone_from(&packet);
+//
+//                        // Switch the source and destination
+//                        new_packet.set_source(packet.get_destination());
+//                        new_packet.set_destination(packet.get_source());
+//
+//                        println!("new packet: {:?}", new_packet);
+//                });
+            },
+            Err(e) => {
+                // If an error occurs, we can handle it here
+                panic!("An error occurred while reading: {}", e);
+            }
+        }
     }
 }
+//
+//fn main() {
+//    let mut cap = Device::lookup().unwrap().open().unwrap();
+//
+//
+//    while let Ok(packet) = cap.next(){
+//        println!("received packet! {:?}", packet);
+//    }
+//}
