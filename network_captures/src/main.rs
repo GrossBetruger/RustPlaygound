@@ -8,11 +8,13 @@ use pnet::datalink::{self, NetworkInterface};
 use pnet::datalink::Channel::Ethernet;
 use pnet::packet::{Packet, MutablePacket};
 use pnet::packet::ethernet::{EthernetPacket, MutableEthernetPacket};
+use pnet::packet::ipv4::Ipv4Packet;
+use pnet::packet::ip::IpNextHeaderProtocols;
 use pnet::packet::tcp::TcpPacket;
 use pnet::packet::ethernet::EtherTypes;
-
-
+use std::prelude::v1::Option::None;
 use std::env;
+
 
 fn get_interface(interface_name: &str) -> NetworkInterface {
     let interface_names_match =
@@ -26,6 +28,29 @@ fn get_interface(interface_name: &str) -> NetworkInterface {
         .unwrap()
 }
 
+
+fn get_ipv4_ethernet_packet(packet: &[u8]) -> Option<EthernetPacket>{
+        let ethernet_packet = EthernetPacket::new(packet).unwrap();
+                match ethernet_packet.get_ethertype() {
+                    EtherTypes::Ipv4 => Some(ethernet_packet),
+                    _ => None
+                }
+}
+
+fn get_tcp_packet(ipv4_ethernet_packet: EthernetPacket) {
+    let header = Ipv4Packet::new(ipv4_ethernet_packet.payload());
+    if let Some(header) = header {
+        match header.get_next_level_protocol() {
+            IpNextHeaderProtocols::Tcp => {println!("found tcp!!!")},
+            other => {
+                println!("not tcp... ");
+                println!("found {:?}", other);
+            }
+
+        }
+    }
+
+}
 
 fn main() {
 
@@ -42,12 +67,13 @@ fn main() {
     loop {
         match rx.next() {
             Ok(packet) => {
-                let ethernet_packet = EthernetPacket::new(packet).unwrap();
-                match ethernet_packet.get_ethertype() {
-                    EtherTypes::Ipv4 => println!("ipv4"),
-                    _ => {}
+                match  get_ipv4_ethernet_packet(packet) {
+                    Some(ether) => {
+                        println!("found ether!");
+                        get_tcp_packet(ether);
+                    },
+                    None => continue
                 }
-
 
             },
             Err(e) => {
