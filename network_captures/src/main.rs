@@ -40,17 +40,17 @@ fn get_ipv4_ethernet_packet(packet: &[u8]) -> Option<EthernetPacket>{
 fn get_tcp_packet(ipv4_ethernet_packet: EthernetPacket) {
     let header = Ipv4Packet::new(ipv4_ethernet_packet.payload());
     if let Some(header) = header {
-        match header.get_next_level_protocol() {
-            IpNextHeaderProtocols::Tcp => {println!("found tcp!!!")},
-            other => {
-                println!("not tcp... ");
-                println!("found {:?}", other);
-            }
-
+            println!("found tcp!!!");
+            let tcp_packet = TcpPacket::new(header.payload()).unwrap();
+            let src_ip = header.get_source();
+            let src_port = tcp_packet.get_source();
+            let dst_ip = header.get_destination();
+            let dst_port = tcp_packet.get_destination();
+            println!("tcp - from: {}:{} to: {}:{}", src_ip, src_port, dst_ip, dst_port);
         }
     }
 
-}
+
 
 fn main() {
 
