@@ -1,9 +1,8 @@
 extern crate pcap;
-use pcap::Device;
-
-
 extern crate pnet;
+extern crate regex;
 
+use pcap::Device;
 use pnet::datalink::{self, NetworkInterface};
 use pnet::datalink::Channel::Ethernet;
 use pnet::packet::{Packet, MutablePacket};
@@ -14,7 +13,8 @@ use pnet::packet::tcp::TcpPacket;
 use pnet::packet::ethernet::EtherTypes;
 use std::prelude::v1::Option::None;
 use std::env;
-
+use regex::Regex;
+use std::str;
 
 fn get_interface(interface_name: &str) -> NetworkInterface {
     let interface_names_match =
@@ -37,19 +37,30 @@ fn get_ipv4_ethernet_packet(packet: &[u8]) -> Option<EthernetPacket>{
                 }
 }
 
+fn search_pattern(pattern: &str, payload: &str) {
+    let re = Regex::new(pattern).unwrap();
+    for cap in re.captures_iter(payload) {
+        println!("found capture: {:?}", cap);
+    }
+
+}
+
 fn get_tcp_packet(ipv4_ethernet_packet: EthernetPacket) {
     let header = Ipv4Packet::new(ipv4_ethernet_packet.payload());
     if let Some(header) = header {
-            println!("found tcp!!!");
-            let tcp_packet = TcpPacket::new(header.payload()).unwrap();
+//            println!("found tcp!!!");
+            let tcp_packet = TcpPacket::new(header.payload()).expect("failed to create tcp packet");
             let src_ip = header.get_source();
             let src_port = tcp_packet.get_source();
             let dst_ip = header.get_destination();
             let dst_port = tcp_packet.get_destination();
             println!("tcp - from: {}:{} to: {}:{}", src_ip, src_port, dst_ip, dst_port);
+            let tcp_payload = tcp_packet.payload();
+//            println!("payload: {:?}", tcp_payload);
+
+            search_pattern(r"\w+", &String::from_utf8_lossy(&tcp_payload))
         }
     }
-
 
 
 fn main() {
@@ -69,7 +80,7 @@ fn main() {
             Ok(packet) => {
                 match  get_ipv4_ethernet_packet(packet) {
                     Some(ether) => {
-                        println!("found ether!");
+//                        println!("found ether!");
                         get_tcp_packet(ether);
                     },
                     None => continue
