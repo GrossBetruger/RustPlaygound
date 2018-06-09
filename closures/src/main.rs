@@ -74,35 +74,65 @@ fn main() {
 
     generate_workout(
         10, 7
-    )
-}
+    );
 
-#[test]
-fn cacher_different_args() {
-    let mut cacher = Cacher::new(|num: u32| {
-        println!("input: {}, takes time...", num);
-        thread::sleep(Duration::from_secs(1));
-        num + 0
-    });
+    let pi = 3.141592;
 
-    let inpt1 = 1;
-    let inpt2 = 2;
-    let v1 = cacher.value(inpt1);
-    let v2 = cacher.value(inpt2);
-    let v3 = cacher.value(inpt2);
-    let v4 = cacher.value(inpt2);
-    let v5 = cacher.value(inpt2);
-    let v6 = cacher.value(inpt2);
-    let v7 = cacher.value(inpt2);
-    let v8 = cacher.value(inpt2);
+    let equals_pi = |num| num == pi; // The closure is allowed to access 'pi' from its scope
 
-    assert_eq!(v1, 1);
-    assert_eq!(v2, 2);
-    assert_eq!(v3, 2);
-    assert_eq!(v4, 2);
-    assert_eq!(v5, 2);
-    assert_eq!(v6, 2);
-    assert_eq!(v7, 2);
-    assert_eq!(v8, 2);
+    println!("{} is pi: {}", 3.141, equals_pi(3.141));
+    println!("{} is pi: {}", 3.141592, equals_pi(3.141592));
+
+//    fn ten_pi() -> i32 {pi * 10}; // won't compile - only closure can access parent scope
+
+    let v = vec![7, 7, 7];
+
+    let equals_v = move |vec| vec == v;
+
+    assert!(equals_v(vec![7,7,7]));
+
+//    println!("v: {:?}", v); // won't compile because 'equals_v' takes ownership of v
+    
+
+
+
 
 }
+
+mod tests {
+
+    use super::*;
+
+    #[test]
+    fn cacher_different_args() {
+        let mut cacher = Cacher::new(|num: u32| {
+            println!("input: {}, takes time...", num);
+            thread::sleep(Duration::from_secs(1));
+            num + 0
+        });
+
+        let inpt1 = 1;
+        let inpt2 = 2;
+        let v1 = cacher.value(inpt1);
+        let v2 = cacher.value(inpt2);
+        let v3 = cacher.value(inpt2);
+        let v4 = cacher.value(inpt2);
+        let v5 = cacher.value(inpt2);
+        let v6 = cacher.value(inpt2);
+        let v7 = cacher.value(inpt2);
+        let v8 = cacher.value(inpt2);
+
+        assert_eq!(v1, 1);
+        assert_eq!(v2, 2);
+        assert_eq!(v3, 2);
+        assert_eq!(v4, 2);
+        assert_eq!(v5, 2);
+        assert_eq!(v6, 2);
+        assert_eq!(v7, 2);
+        assert_eq!(v8, 2);
+    }
+
+}
+
+
+
