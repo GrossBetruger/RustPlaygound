@@ -136,9 +136,6 @@ fn main() {
 
     println!("evened primes: {:?}", evaluated_evens);
 
-
-
-
 }
 
 mod tests {
@@ -233,6 +230,15 @@ mod tests {
             assert_eq!(counter.next(), Some(i))
         }
         assert_eq!(counter.next(), None)
+    }
+
+    #[test]
+    fn test_different_iterator_methods() {
+        // after implementing 'next' we can also use 'skip'
+        let zipped_product: u32 = Counter::new()
+            .zip(Counter::new().skip(1)).map(|(a, b)| a * b).sum();
+
+        assert_eq!(zipped_product, 40);
     }
 
 }
