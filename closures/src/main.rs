@@ -92,7 +92,7 @@ fn main() {
     assert!(equals_v(vec![7,7,7]));
 
 //    println!("v: {:?}", v); // won't compile because 'equals_v' takes ownership of v
-    
+
 
 
 
@@ -131,6 +131,28 @@ mod tests {
         assert_eq!(v7, 2);
         assert_eq!(v8, 2);
     }
+
+    #[test]
+    fn test_laziness() {
+        println!("test no evaluation");
+        let mega_vector = 1..10u64.pow(18u32);
+        println!("done no evaluation")
+
+    }
+
+    #[test]
+    fn test_laziness2() {
+        println!("test with evaluation");
+        let mega_vector = 1..10u64.pow(8u32);
+        // of optimization level is >= 2 in profile.test this will be ignored
+        // by the compiler as trivial and won't take any runtime
+        for i in mega_vector{
+
+        }
+        println!("{}",String::from("done evaluating... phew, that was hard!").to_uppercase());
+
+    }
+
 
 }
 
