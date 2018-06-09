@@ -34,6 +34,18 @@ impl <T> Cacher <T>
 
     }
 
+#[derive(PartialEq, Debug)]
+struct Shoe {
+    size: u32,
+    style: String
+}
+
+fn shoes_my_size(shoes: Vec<Shoe>, my_size: u32) -> Vec<Shoe> {
+    shoes.into_iter()
+        .filter(|shoe| shoe.size == my_size)
+        .collect()
+}
+
 fn simulate_expensive_calc(intensity: u32) -> u32 {
     println!("calculating...");
     thread::sleep(Duration::from_secs(2));
@@ -94,6 +106,13 @@ fn main() {
 //    println!("v: {:?}", v); // won't compile because 'equals_v' takes ownership of v
 
 
+    let primes: Vec<i32> = vec![3, 5, 7];
+    let evens = primes.iter().map(|prime| prime + 1);
+
+    let evaluated_evens = evens.collect::<Vec<i32>>();
+
+    println!("evened primes: {:?}", evaluated_evens);
+
 
 
 
@@ -153,7 +172,37 @@ mod tests {
 
     }
 
+    #[test]
+    fn test_iter_next() {
+        let vec = vec![0, -1, -2];
+        let mut v = vec.iter();
 
+        assert_eq!(v.next(), Some(&0));
+        assert_eq!(v.next(), Some(&-1));
+        assert_eq!(v.next(), Some(&-2));
+        assert_eq!(v.next(), None);
+    }
+
+    #[test]
+    fn test_consuming_adaptors() {
+        let v: Vec<u32> = vec![8, 8, 1];
+
+        let i = v.iter();
+        let total: u32 = i.sum();
+        assert_eq!(total, 17);
+//        println!("iterator {:?}", i); // won't compile value moved (by calling sum)
+    }
+
+    #[test]
+    fn test_shoes_sieve() {
+        let shoes = vec![Shoe {size: 32, style: String::from("sneaker")},
+            Shoe { size: 13, style: String::from("sandal") },
+            Shoe { size: 10, style: String::from("boot") }];
+
+        let fitting = shoes_my_size(shoes, 32);
+        assert_eq!(fitting, vec![Shoe {size: 32, style: String::from("sneaker")}])
+    }
+    
 }
 
 
