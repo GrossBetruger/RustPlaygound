@@ -34,18 +34,6 @@ impl <T> Cacher <T>
 
     }
 
-#[derive(PartialEq, Debug)]
-struct Shoe {
-    size: u32,
-    style: String
-}
-
-fn shoes_my_size(shoes: Vec<Shoe>, my_size: u32) -> Vec<Shoe> {
-    shoes.into_iter()
-        .filter(|shoe| shoe.size == my_size)
-        .collect()
-}
-
 fn simulate_expensive_calc(intensity: u32) -> u32 {
     println!("calculating...");
     thread::sleep(Duration::from_secs(2));
@@ -81,6 +69,41 @@ fn generate_workout(intensity: u32, random_factor: u32) {
     }
 }
 
+#[derive(PartialEq, Debug)]
+struct Shoe {
+    size: u32,
+    style: String
+}
+
+fn shoes_my_size(shoes: Vec<Shoe>, my_size: u32) -> Vec<Shoe> {
+    shoes.into_iter()
+        .filter(|shoe| shoe.size == my_size)
+        .collect()
+}
+
+struct Counter {
+    count: u32
+}
+
+impl Counter {
+    fn new() -> Counter {
+        Counter {count: 0}
+    }
+}
+
+impl Iterator for Counter {
+    type Item = u32;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.count += 1;
+
+        if self.count < 6 {
+            Some(self.count)
+        }
+        else { None }
+
+    }
+}
 
 fn main() {
 
@@ -202,7 +225,16 @@ mod tests {
         let fitting = shoes_my_size(shoes, 32);
         assert_eq!(fitting, vec![Shoe {size: 32, style: String::from("sneaker")}])
     }
-    
+
+    #[test]
+    fn test_custom_iterator() {
+        let mut counter = Counter::new();
+        for i in 1..6 {
+            assert_eq!(counter.next(), Some(i))
+        }
+        assert_eq!(counter.next(), None)
+    }
+
 }
 
 
