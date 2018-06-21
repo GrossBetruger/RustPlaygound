@@ -69,40 +69,179 @@ fn generate_workout(intensity: u32, random_factor: u32) {
     }
 }
 
+#[derive(PartialEq, Debug)]
+struct Shoe {
+    size: u32,
+    style: String
+}
+
+fn shoes_my_size(shoes: Vec<Shoe>, my_size: u32) -> Vec<Shoe> {
+    shoes.into_iter()
+        .filter(|shoe| shoe.size == my_size)
+        .collect()
+}
+
+struct Counter {
+    count: u32
+}
+
+impl Counter {
+    fn new() -> Counter {
+        Counter {count: 0}
+    }
+}
+
+impl Iterator for Counter {
+    type Item = u32;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.count += 1;
+
+        if self.count < 6 {
+            Some(self.count)
+        }
+        else { None }
+
+    }
+}
 
 fn main() {
 
     generate_workout(
         10, 7
-    )
-}
+    );
 
-#[test]
-fn cacher_different_args() {
-    let mut cacher = Cacher::new(|num: u32| {
-        println!("input: {}, takes time...", num);
-        thread::sleep(Duration::from_secs(1));
-        num + 0
-    });
+    let pi = 3.141592;
 
-    let inpt1 = 1;
-    let inpt2 = 2;
-    let v1 = cacher.value(inpt1);
-    let v2 = cacher.value(inpt2);
-    let v3 = cacher.value(inpt2);
-    let v4 = cacher.value(inpt2);
-    let v5 = cacher.value(inpt2);
-    let v6 = cacher.value(inpt2);
-    let v7 = cacher.value(inpt2);
-    let v8 = cacher.value(inpt2);
+    let equals_pi = |num| num == pi; // The closure is allowed to access 'pi' from its scope
 
-    assert_eq!(v1, 1);
-    assert_eq!(v2, 2);
-    assert_eq!(v3, 2);
-    assert_eq!(v4, 2);
-    assert_eq!(v5, 2);
-    assert_eq!(v6, 2);
-    assert_eq!(v7, 2);
-    assert_eq!(v8, 2);
+    println!("{} is pi: {}", 3.141, equals_pi(3.141));
+    println!("{} is pi: {}", 3.141592, equals_pi(3.141592));
+
+//    fn ten_pi() -> i32 {pi * 10}; // won't compile - only closure can access parent scope
+
+    let v = vec![7, 7, 7];
+
+    let equals_v = move |vec| vec == v;
+
+    assert!(equals_v(vec![7,7,7]));
+
+//    println!("v: {:?}", v); // won't compile because 'equals_v' takes ownership of v
+
+
+    let primes: Vec<i32> = vec![3, 5, 7];
+    let evens = primes.iter().map(|prime| prime + 1);
+
+    let evaluated_evens = evens.collect::<Vec<i32>>();
+
+    println!("evened primes: {:?}", evaluated_evens);
 
 }
+
+mod tests {
+
+    use super::*;
+
+    #[test]
+    fn cacher_different_args() {
+        let mut cacher = Cacher::new(|num: u32| {
+            println!("input: {}, takes time...", num);
+            thread::sleep(Duration::from_secs(1));
+            num + 0
+        });
+
+        let inpt1 = 1;
+        let inpt2 = 2;
+        let v1 = cacher.value(inpt1);
+        let v2 = cacher.value(inpt2);
+        let v3 = cacher.value(inpt2);
+        let v4 = cacher.value(inpt2);
+        let v5 = cacher.value(inpt2);
+        let v6 = cacher.value(inpt2);
+        let v7 = cacher.value(inpt2);
+        let v8 = cacher.value(inpt2);
+
+        assert_eq!(v1, 1);
+        assert_eq!(v2, 2);
+        assert_eq!(v3, 2);
+        assert_eq!(v4, 2);
+        assert_eq!(v5, 2);
+        assert_eq!(v6, 2);
+        assert_eq!(v7, 2);
+        assert_eq!(v8, 2);
+    }
+
+    #[test]
+    fn test_laziness() {
+        println!("test no evaluation");
+        let mega_vector = 1..10u64.pow(18u32);
+        println!("done no evaluation")
+
+    }
+
+    #[test]
+    fn test_laziness2() {
+        println!("test with evaluation");
+        let mega_vector = 1..10u64.pow(8u32);
+        // of optimization level is >= 2 in profile.test this will be ignored
+        // by the compiler as trivial and won't take any runtime
+        for i in mega_vector{
+
+        }
+        println!("{}",String::from("done evaluating... phew, that was hard!").to_uppercase());
+
+    }
+
+    #[test]
+    fn test_iter_next() {
+        let vec = vec![0, -1, -2];
+        let mut v = vec.iter();
+
+        assert_eq!(v.next(), Some(&0));
+        assert_eq!(v.next(), Some(&-1));
+        assert_eq!(v.next(), Some(&-2));
+        assert_eq!(v.next(), None);
+    }
+
+    #[test]
+    fn test_consuming_adaptors() {
+        let v: Vec<u32> = vec![8, 8, 1];
+
+        let i = v.iter();
+        let total: u32 = i.sum();
+        assert_eq!(total, 17);
+//        println!("iterator {:?}", i); // won't compile value moved (by calling sum)
+    }
+
+    #[test]
+    fn test_shoes_sieve() {
+        let shoes = vec![Shoe {size: 32, style: String::from("sneaker")},
+            Shoe { size: 13, style: String::from("sandal") },
+            Shoe { size: 10, style: String::from("boot") }];
+
+        let fitting = shoes_my_size(shoes, 32);
+        assert_eq!(fitting, vec![Shoe {size: 32, style: String::from("sneaker")}])
+    }
+
+    #[test]
+    fn test_custom_iterator() {
+        let mut counter = Counter::new();
+        for i in 1..6 {
+            assert_eq!(counter.next(), Some(i))
+        }
+        assert_eq!(counter.next(), None)
+    }
+
+    #[test]
+    fn test_different_iterator_methods() {
+        // after implementing 'next' we can also use 'skip'
+        let zipped_product: u32 = Counter::new()
+            .zip(Counter::new().skip(1)).map(|(a, b)| a * b).sum();
+
+        assert_eq!(zipped_product, 40);
+    }
+
+}
+
+
+
