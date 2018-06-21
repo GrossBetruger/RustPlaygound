@@ -1,0 +1,8 @@
+[package]
+name = "colorful_strings"
+version = "0.1.0"
+authors = ["oren <oren@cynerio.co>"]
+
+[dependencies]
+colored = "1.6"
+regex = "0.2"
