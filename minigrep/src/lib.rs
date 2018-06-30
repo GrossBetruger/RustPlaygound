@@ -13,12 +13,18 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(args: &Vec<String>) -> Result<Config, &'static str> {
-        if args.len() != 3 {
-            return Err("wrong number of arguments (2 needed)")
-        }
-        let pattern = args[1].clone();
-        let filename = args[2].clone();
+    pub fn new(mut args: std::env::Args) -> Result<Config, &'static str> {
+
+        args.next(); // iterate over first arg (binary path)
+
+        let pattern = match args.next() {
+            Some(arg) => arg,
+            None => return Err("didn't find pattern to search for")
+        };
+        let filename = match args.next() {
+            Some(filename) => filename,
+            None => return Err("didn't find filename")
+        };
         // if "CASE_INSENSITIVE" env variable doesn't exist is_err() returns true
         let case_sensitive = env::var("CASE_INSENSITIVE").is_err();
         Ok(Config { pattern, filename, case_sensitive })

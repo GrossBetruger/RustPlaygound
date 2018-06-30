@@ -8,10 +8,7 @@ use minigrep::*;
 
 fn main() {
 
-    let args: Vec<String> = env::args().collect();
-    println!("args: {:?}", args);
-
-    let config = Config::new(&args).unwrap(); // parse_cli
+    let config = Config::new(env::args()).unwrap(); // parse_cli
     if let Err(e) = run(config) {
         eprintln!("application error: {}", e);
         process::exit(1);
