@@ -1,4 +1,6 @@
-
+//! # Documentation crate
+//!
+//! this crate is all about the documentation!
 
 /// Adds one to a give i32 num
 ///
