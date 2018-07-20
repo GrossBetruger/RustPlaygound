@@ -2,5 +2,7 @@
 name = "art"
 version = "0.1.0"
 authors = ["koi <koriatoren@gmail.com>"]
+description = "just a mock crate"
+license = "MIT"
 
 [dependencies]
