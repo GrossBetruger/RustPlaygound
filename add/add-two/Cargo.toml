@@ -1,7 +1,6 @@
 [package]
-name = "add-one"
+name = "add-two"
 version = "0.1.0"
 authors = ["koi <koriatoren@gmail.com>"]
 
 [dependencies]
-rand = "0.3.14"

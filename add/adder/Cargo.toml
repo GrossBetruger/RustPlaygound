@@ -5,3 +5,4 @@ authors = ["koi <koriatoren@gmail.com>"]
 
 [dependencies]
 add-one = {path = "../add-one"}
+add-two = {path = "../add-two"}
