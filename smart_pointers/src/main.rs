@@ -27,6 +27,10 @@ impl<T> Deref for MyBox<T> {
     }
 }
 
+fn hello(name: &str) {
+    println!("hello, {}", name)
+}
+
 fn main() {
     let list = Cons(1,
         Box::new(Cons(1,
@@ -56,6 +60,18 @@ fn main() {
 
     assert_eq!(x, 3);
     assert_eq!(*y, 3);
+
+
+    let name = String::from("Nick");
+    // calling function with the expected type &str
+    hello(&name);
+
+    let boxed_name = MyBox(String::from("Dave"));
+    //  Deref coercion in action:
+    // a reference to a box for a type T automatically becomes a reference to the original T
+    hello(&boxed_name);
+    // so we don't need to do this (dereference box, take slice, create & ref to slice):
+    hello(&(*boxed_name)[..]);
 
 
 
