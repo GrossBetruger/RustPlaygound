@@ -1,4 +1,5 @@
 use std::ops::Deref;
+use std::rc::Rc;
 
 
 enum List {
@@ -7,6 +8,14 @@ enum List {
 }
 
 use List::{Cons, Nil};
+
+
+enum RCList {
+    RcCons(i32, Rc<RCList>),
+    RcNil
+}
+
+use RCList::{RcCons, RcNil};
 
 
 struct MyBox<T>(T);
@@ -93,4 +102,18 @@ fn main() {
     let manual_drop = CustomSmartPointer{data: String::from("drop me gently")};
     drop(manual_drop); // using std::mem::drop to manually drop pointer before going out of scope
     println!("oops, you dropped something...");
+
+
+    // Reference Counters:
+
+    // two lists that point to a third list (conceptually both should be owners of the third)
+
+    let a = Rc::new(RcCons(3, Rc::new(RcCons(10,
+                Rc::new(RcNil)))));
+
+    // b, and c point to a:
+    let b = RcCons(3, Rc::clone(&a));
+    let c = RcCons(2, Rc::clone(&a));
+
+
 }
