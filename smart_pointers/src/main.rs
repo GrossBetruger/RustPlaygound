@@ -110,10 +110,13 @@ fn main() {
 
     let a = Rc::new(RcCons(3, Rc::new(RcCons(10,
                 Rc::new(RcNil)))));
+    println!("references to a: {}", Rc::strong_count(&a));
 
     // b, and c point to a:
     let b = RcCons(3, Rc::clone(&a));
-    let c = RcCons(2, Rc::clone(&a));
+    println!("references to a: {}", Rc::strong_count(&a));
 
+    let c = RcCons(2, Rc::clone(&a));
+    println!("references to a: {}", Rc::strong_count(&a));
 
 }
