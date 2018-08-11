@@ -31,6 +31,17 @@ fn hello(name: &str) {
     println!("hello, {}", name)
 }
 
+struct CustomSmartPointer {
+    data: String
+}
+
+impl Drop for CustomSmartPointer {
+    fn drop(&mut self) {
+        println!("dropping SmartPointer with data: {}", self.data)
+    }
+}
+
+
 fn main() {
     let list = Cons(1,
         Box::new(Cons(1,
@@ -73,6 +84,13 @@ fn main() {
     // so we don't need to do this (dereference box, take slice, create & ref to slice):
     hello(&(*boxed_name)[..]);
 
+    // pointers are dropped FILO so 'smart2' will be dropped first
+    let smart1 = CustomSmartPointer{data: String::from("first smart pointer")};
+    let smart2 = CustomSmartPointer{data: String::from("second smart pointer")};
 
+    println!("smart pointers created!");
 
+    let manual_drop = CustomSmartPointer{data: String::from("drop me gently")};
+    drop(manual_drop); // using std::mem::drop to manually drop pointer before going out of scope
+    println!("oops, you dropped something...");
 }
