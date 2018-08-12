@@ -14,9 +14,9 @@ fn n_choose_k(n: f64, k: f64) -> f64 {
 }
 
 
-//fn binom(p: f64, n: f64, k: f64) {
-//    n_choose_k(n, k) * p.pow(k) * (1. - p).pow(n - k)
-//}
+fn binom(p: f64, n: f64, k: f64) -> f64{
+    n_choose_k(n, k) * p.powf(k) * (1. - p).powf(n - k)
+}
 
 fn main() {
     println!("fac 3: {}", factorial(3.));
@@ -28,4 +28,6 @@ fn main() {
     println!("19 choose 5: {}", n_choose_k(19., 5.));
     println!("19 choose 0: {}", n_choose_k(19., 0.));
     println!("19 choose 0: {}", n_choose_k(19., 0.));
+
+    println!("binom of 3 girls and one boy in family of 5: {}", binom(0.5, 5., 3.))
 }
