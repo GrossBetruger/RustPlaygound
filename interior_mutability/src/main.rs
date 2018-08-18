@@ -32,8 +32,31 @@ impl<'a, T> LimitTracker<'a, T>
         }
     }
 }
+
+// many owners list with mutable values
+#[derive(Debug)]
+enum List {
+    Cons(Rc<RefCell<i32>>, Rc<List>),
+    Nil,
+}
+
+use std::rc::Rc;
+use std::cell::RefCell;
+use List::{Cons, Nil};
+
 fn main() {
-    println!("Hello, world!");
+    let value = Rc::new(RefCell::new(42));
+
+    let tail = Rc::new(Cons(Rc::clone(&value), Rc::new(Nil)));
+
+    let head_a = Cons(Rc::new(RefCell::new(2)), Rc::clone(&tail));
+    let head_b = Cons(Rc::new(RefCell::new(5)), Rc::clone(&tail));
+
+    println!("tail, a, b, {:?} - {:?} - {:?}", tail, head_a, head_b);
+
+    *value.borrow_mut() = 33;
+
+    println!("tail, a, b, {:?} - {:?} - {:?}", tail, head_a, head_b);
 }
 
 #[cfg(test)]
