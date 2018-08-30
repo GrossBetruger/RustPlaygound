@@ -1,6 +1,6 @@
 use std::thread;
 use std::time::Duration;
-
+use std::sync::mpsc;
 
 
 fn main() {
@@ -22,6 +22,17 @@ fn main() {
     // passing ownership of a vector to a clojure with 'move'
     thread::spawn(move || {
         println!("here's a nice vector: {:?}", v);
-    }).join();
-    
+    }).join().expect("vec printing job failed");
+
+    let (tx, rx) = mpsc::channel();
+
+    thread::spawn(move || {
+        let message = String::from("yo yo!");
+        tx.send(message).unwrap();
+    });
+
+    let received_msg = rx.recv()
+        .expect("failed to retrieve message from channel");
+
+    println!("message: '{}' received loud and clear!", received_msg);
 }
