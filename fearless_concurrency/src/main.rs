@@ -35,4 +35,51 @@ fn main() {
         .expect("failed to retrieve message from channel");
 
     println!("message: '{}' received loud and clear!", received_msg);
+
+
+    let (tx, rx) = mpsc::channel(); // creating new transmitter and receiver
+
+    thread::spawn(move || {
+        for i in 1..6 {
+            tx.send(format!("msg {}", i)).unwrap();
+            thread::sleep(Duration::from_millis(300));
+        }
+    });
+
+    for rec in rx {
+        println!("postponed message received: '{}'", rec);
+    }
+
+    let (tx, rx) = mpsc::channel(); // creating new transmitter and receiver
+
+
+    thread::sleep(Duration::from_secs(1));
+
+    // using the multi-producer single consumer property:
+    let tx1 = tx.clone();
+
+    thread::spawn(move || {
+        let messages = vec!["hello", "from"];
+
+        for msg in messages {
+            tx.send(msg).unwrap(); // first producer
+            thread::sleep(Duration::from_millis(700));
+        }
+    });
+
+    thread::sleep(Duration::from_secs(3));
+
+    thread::spawn(move || {
+        let messages = vec!["the", "other", "side"];
+
+        for msg in messages {
+            tx1.send(msg).unwrap(); // second producer
+            thread::sleep(Duration::from_millis(700))
+        }
+    });
+
+    for rec in rx {
+        println!("{}", rec);
+    }
+
 }
