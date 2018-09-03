@@ -1,0 +1,7 @@
+[package]
+name = "grouped_names"
+version = "0.1.0"
+authors = ["oren <oren@cynerio.co>"]
+
+[dependencies]
+regex = "1.0.4"
