@@ -1,4 +1,4 @@
-
+const STARTUP_SUCCESS_RATE: f64 = 0.10;
 
 fn factorial(n: f64) -> f64 {
     let mut result = 1.;
@@ -29,5 +29,7 @@ fn main() {
     println!("19 choose 0: {}", n_choose_k(19., 0.));
     println!("19 choose 0: {}", n_choose_k(19., 0.));
 
-    println!("binom of 3 girls and one boy in family of 5: {}", binom(0.5, 5., 3.))
+    println!("binom of 3 girls and one boy in family of 5: {}", binom(0.5, 5., 3.));
+    println!("80% success rate in 5 startups: {}", binom(STARTUP_SUCCESS_RATE, 5., 4.));
+
 }
