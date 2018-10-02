@@ -6,7 +6,7 @@ fn main() {
 
     println!("toke: {:?}", taken.into_iter().collect::<Vec<&u32>>());
 
-    let padded: Vec<u32> = vec![0, 0, 0, 1, 2, 3, 0, 0];
+    let padded: Vec<u32> = vec![0, 0, 0, 1, 2, 0, 3, 0, 0];
 
     println!("got: {:?}", padded
         .iter()
@@ -15,6 +15,9 @@ fn main() {
         .iter()
         .rev()
         .skip_while(|x| ***x == 0)
-        .collect::<Vec<&&u32>>());
+        .collect::<Vec<&&u32>>()
+        .iter()
+        .rev()
+        .collect::<Vec<&&&u32>>());
 
 }
