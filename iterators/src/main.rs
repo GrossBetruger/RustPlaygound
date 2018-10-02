@@ -9,13 +9,16 @@ fn main() {
     let padded: Vec<u32> = vec![0, 0, 0, 1, 2, 0, 3, 0, 0];
 
     println!("got: {:?}", padded
+        // cut head padding
         .iter()
         .skip_while(|x| **x == 0)
         .collect::<Vec<&u32>>()
+        // cut tail padding
         .iter()
         .rev()
         .skip_while(|x| ***x == 0)
         .collect::<Vec<&&u32>>()
+        // return to original order
         .iter()
         .rev()
         .collect::<Vec<&&&u32>>());
