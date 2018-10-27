@@ -23,4 +23,18 @@ fn main() {
         .rev()
         .collect::<Vec<&&&u32>>());
 
+    // scanners
+
+    let set = 0..10000;
+
+    let (evens, odds): (Vec<u32>, Vec<u32>) = set.partition(|x| x % 2 == 0);
+
+    let evens_scanner = evens.iter().scan(0, |acc, x| {*acc += x; Some(*acc)});
+    let odds_scanner = odds.iter().scan(0, |acc, x| {*acc += x; Some(*acc)});
+
+    println!("odds remain larger than evens: {:?}", evens_scanner.zip(odds_scanner)
+        .all(|(even_partial_sum, odd_partial_sum)| {
+            odd_partial_sum > even_partial_sum
+    }));
+
 }
