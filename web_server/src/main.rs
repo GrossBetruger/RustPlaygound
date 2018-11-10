@@ -2,7 +2,9 @@ use std::net::TcpListener;
 use std::net::TcpStream;
 use std::io::prelude::*;
 use std::fs;
+use std::path::Path;
 
+const STATIC_PATH: &str = "static";
 
 fn main() {
 
@@ -28,7 +30,7 @@ fn handle(mut stream: TcpStream) {
 }
 
 fn append_html(http_response: &str, html_path: &str) -> String {
-    format!("{}{}", http_response, fs::read_to_string(html_path).unwrap())
+    format!("{}{}", http_response, fs::read_to_string(Path::new(STATIC_PATH).join(html_path)).unwrap())
 }
 
 
