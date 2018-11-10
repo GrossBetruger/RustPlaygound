@@ -9,8 +9,14 @@ const STATUS_OK: &str = "HTTP/1.1 200 OK\r\n\r\n";
 const STATUS_NOT_FOUND: &str = "HTTP/1.1 404 NOT FOUND\r\n\r\n";
 
 fn main() {
+    serve_forever("127.0.0.1", 8008);
+}
 
-    let listener = TcpListener::bind("127.0.0.1:8008").unwrap();
+fn serve_forever(host:&str, port: u16) {
+    let af_inet = format!("{}:{}", host, port);
+
+    let listener = TcpListener::bind(&af_inet).unwrap();
+    println!("serving forever on: http://{}\n...", &af_inet);
 
     for stream in listener.incoming() {
         let mut stream = stream.unwrap();
