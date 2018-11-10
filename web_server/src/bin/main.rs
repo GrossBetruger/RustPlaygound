@@ -1,3 +1,6 @@
+extern crate web_server;
+
+use web_server::ThreadPool;
 use std::net::TcpListener;
 use std::net::TcpStream;
 use std::io::prelude::*;
@@ -11,6 +14,7 @@ const GET_SLEEP: &str = "GET /sleep HTTP/1.1\r\n";
 const STATUS_OK: &str = "HTTP/1.1 200 OK\r\n\r\n";
 const STATUS_NOT_FOUND: &str = "HTTP/1.1 404 NOT FOUND\r\n\r\n";
 
+
 fn main() {
     serve_forever("127.0.0.1", 8008);
 }
@@ -20,11 +24,12 @@ fn serve_forever(host:&str, port: u16) {
 
     let listener = TcpListener::bind(&af_inet).unwrap();
     println!("serving forever on: http://{}\n...", &af_inet);
+    let pool = ThreadPool::new(3);
 
     for stream in listener.incoming() {
         let mut stream = stream.unwrap();
         println!("connection established!: {:?}", stream);
-        handle(stream);
+        pool.execute(||{handle(stream)});
     }
 }
 
