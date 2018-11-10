@@ -1,12 +1,9 @@
 use std::net::TcpListener;
 use std::net::TcpStream;
 use std::io::prelude::*;
-use std::fs;
-use std::path::Path;
 
-const STATIC_PATH: &str = "static";
-const WELCOME_HTML: &str = "welcome.html";
-const NOT_FOUND_HTML: &str = "404.html";
+const WELCOME_HTML: &str = include_str!("static/welcome.html");
+const NOT_FOUND_HTML: &str = include_str!("static/404.html");
 const GET: &str = "GET / HTTP/1.1\r\n";
 const STATUS_OK: &str = "HTTP/1.1 200 OK\r\n\r\n";
 const STATUS_NOT_FOUND: &str = "HTTP/1.1 404 NOT FOUND\r\n\r\n";
@@ -37,8 +34,8 @@ fn handle(mut stream: TcpStream) {
     }
 }
 
-fn append_html(http_response: &str, html_path: &str) -> String {
-    format!("{}{}", http_response, fs::read_to_string(Path::new(STATIC_PATH).join(html_path)).unwrap())
+fn append_html(http_response: &str, html: &str) -> String {
+    format!("{}{}", http_response, html)
 }
 
 fn deliver_page(status_line: &str, page_name: &str, stream: &mut TcpStream) {
