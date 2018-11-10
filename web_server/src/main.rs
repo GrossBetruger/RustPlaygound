@@ -1,10 +1,13 @@
 use std::net::TcpListener;
 use std::net::TcpStream;
 use std::io::prelude::*;
+use std::thread;
+use std::time::Duration;
 
 const WELCOME_HTML: &str = include_str!("static/welcome.html");
 const NOT_FOUND_HTML: &str = include_str!("static/404.html");
-const GET: &str = "GET / HTTP/1.1\r\n";
+const GET_INDEX: &str = "GET / HTTP/1.1\r\n";
+const GET_SLEEP: &str = "GET /sleep HTTP/1.1\r\n";
 const STATUS_OK: &str = "HTTP/1.1 200 OK\r\n\r\n";
 const STATUS_NOT_FOUND: &str = "HTTP/1.1 404 NOT FOUND\r\n\r\n";
 
@@ -31,8 +34,12 @@ fn handle(mut stream: TcpStream) {
     let message = String::from_utf8_lossy(&buf[..]);
     println!("message:\n\n{}", message);
 
-    if message.starts_with(GET) {
+    if message.starts_with(GET_INDEX) {
         deliver_page(STATUS_OK, WELCOME_HTML, &mut stream);
+    }
+    else if message.starts_with(GET_SLEEP) {
+        thread::sleep(Duration::from_secs(5));
+        deliver_page(STATUS_OK, WELCOME_HTML, &mut stream)
     }
 
     else {
