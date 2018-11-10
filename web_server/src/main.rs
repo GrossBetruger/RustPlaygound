@@ -1,6 +1,8 @@
 use std::net::TcpListener;
 use std::net::TcpStream;
 use std::io::prelude::*;
+use std::fs;
+
 
 fn main() {
 
@@ -15,7 +17,18 @@ fn main() {
 
 fn handle(mut stream: TcpStream) {
     let mut buf = [0u8; 512];
+    stream.read(&mut buf).unwrap();
+    println!("message:\n\n{}", String::from_utf8_lossy(&buf[..]));
 
-    stream.read(&mut buf);
-    println!("message: {}", String::from_utf8_lossy(&buf[..]));
+    let response = append_html("HTTP/1.1 200 OK\r\n\r\n", "welcome.html");
+
+    stream.write(response.as_bytes()).unwrap();
+    stream.flush().unwrap();
+    println!("response sent successfully");
 }
+
+fn append_html(http_response: &str, html_path: &str) -> String {
+    format!("{}{}", http_response, fs::read_to_string(html_path).unwrap())
+}
+
+
