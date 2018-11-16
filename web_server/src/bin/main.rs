@@ -31,6 +31,7 @@ fn serve_forever(host:&str, port: u16) {
         println!("connection established!: {:?}", stream);
         pool.execute(||{handle(stream)});
     }
+
 }
 
 fn handle(mut stream: TcpStream) {

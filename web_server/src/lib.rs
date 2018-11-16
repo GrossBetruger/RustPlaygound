@@ -8,12 +8,12 @@ use std::sync::mpsc::Receiver;
 
 pub struct ThreadPool {
     threads: Vec<Worker>,
-    sender: Sender<Job>
+    sender: Sender<Message>
 }
 
 struct Worker {
     id: usize,
-    handel: thread::JoinHandle<()>
+    handle: Option<thread::JoinHandle<()>>
 }
 
 trait FnBox {
@@ -28,22 +28,33 @@ impl <F: FnOnce()> FnBox for F {
 
 type Job = Box<FnBox + Send + 'static>;
 
+enum Message {
+    NewJob(Job),
+    Terminate
+}
 
 impl Worker {
-    fn new(id: usize, receiver: Arc<Mutex<Receiver<Job>>>) -> Worker {
+    fn new(id: usize, receiver: Arc<Mutex<Receiver<Message>>>) -> Worker {
         let thread = thread::spawn(move || {
             loop {
-                let job = receiver.lock().unwrap().recv().unwrap();
+                let message = receiver.lock().unwrap().recv().unwrap();
 
-                println!("Worker {} got a job; executing.", id);
-
-                job.call_box();
+                match message {
+                    Message::NewJob(job) => {
+                            println!("Worker {} got a job; executing.", id);
+                            job.call_box();
+                    }
+                    Message::Terminate => {
+                         println!("Worker {} was told to terminate.", id);
+                         break;
+                    }
+                }
             }
         });
 
         Worker {
             id: id,
-            handel: thread
+            handle: Some(thread)
         }
     }
 }
@@ -72,8 +83,26 @@ impl ThreadPool {
         {
             let job = Box::new(f);
 
-            self.sender.send(job).unwrap();
+            self.sender.send(Message::NewJob(job)).unwrap();
 
         }
 
+}
+
+impl Drop for ThreadPool {
+    fn drop(&mut self) {
+        println!("sending terminate signal to all threads");
+
+        for _ in &self.threads {
+            self.sender.send(Message::Terminate).unwrap();
+        }
+
+        for worker in &mut self.threads {
+            println!("shutting down worker: {}", worker.id);
+            if let Some(thread) = worker.handle.take() {
+                thread.join().unwrap();
+                println!("successfully shut down worker: {}", worker.id)
+            }
+        }
+    }
 }
