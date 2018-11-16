@@ -24,7 +24,7 @@ fn serve_forever(host:&str, port: u16) {
 
     let listener = TcpListener::bind(&af_inet).unwrap();
     println!("serving forever on: http://{}\n...", &af_inet);
-    let pool = ThreadPool::new(3);
+    let pool = ThreadPool::new(30);
 
     for stream in listener.incoming() {
         let mut stream = stream.unwrap();
