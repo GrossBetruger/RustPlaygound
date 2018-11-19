@@ -2,6 +2,7 @@ extern crate pcap;
 extern crate pnet;
 extern crate regex;
 extern crate pcap_file;
+extern crate time;
 
 #[macro_use] extern crate structopt;
 #[macro_use] extern crate custom_derive;
@@ -25,6 +26,8 @@ use pnet::packet::ip::IpNextHeaderProtocols::Udp;
 use structopt::StructOpt;
 use pcap_file::*;
 use std::fs::File;
+use time::get_time;
+
 
 fn get_interface(interface_name: &str) -> NetworkInterface {
     let interface_names_match =
@@ -53,7 +56,11 @@ fn search_pattern(pattern: &str, payload: &str) -> bool {
 }
 
 fn dump_packet(data: &[u8], filename: &str) {
-    let packet = pcap_file::Packet::new(0, 0, data.len() as u32, &data);
+    let time = get_time();
+    let packet = pcap_file::Packet::new((time.nsec / 1000_000) as u32,
+                                        (time.nsec / 1000) as u32,
+                                        data.len() as u32, &data);
+
     let file = File::create(filename).expect(&format!("Error creating file: '{}'", filename));
     let mut pcap_writer = pcap_file::PcapWriter::new(file).unwrap();
     pcap_writer.write_packet(&packet).unwrap();
@@ -61,7 +68,7 @@ fn dump_packet(data: &[u8], filename: &str) {
 
 }
 
-fn search_in_tcp(ipv4_ethernet_packet: EthernetPacket, pattern: &str) {
+fn search_in_tcp(ipv4_ethernet_packet: EthernetPacket, pattern: &str, dump_path: &str) {
     let header = Ipv4Packet::new(ipv4_ethernet_packet.payload());
     if let Some(header) = header {
             if header.get_next_level_protocol() == Tcp  {
@@ -74,7 +81,7 @@ fn search_in_tcp(ipv4_ethernet_packet: EthernetPacket, pattern: &str) {
                 let tcp_payload = tcp_packet.payload();
 
                 match search_pattern(pattern, &String::from_utf8_lossy(&tcp_payload)) {
-                    true => dump_packet(ipv4_ethernet_packet.packet(), "dump.pcap"),
+                    true => dump_packet(ipv4_ethernet_packet.packet(), dump_path),
                     _ => {}
                 }
             }
@@ -107,12 +114,15 @@ struct Opt {
     port: Option<u16>,
     #[structopt(long = "interface", help = "Port to filter")]
     interface: Option<String>,
+    #[structopt(long = "dump", help = "path to dump pcap of found captures")]
+    dump_path: Option<String>,
 }
 
 fn main() {
 
     let opt = Opt::from_args();
     let interface_name = opt.interface.unwrap_or("lo".into()); //Device::lookup().unwrap().name;
+    let dump_path = opt.dump_path.unwrap_or("dump.pcap".into());
     println!("capturing from network interface: {}", interface_name);
     let interface = get_interface(&interface_name);
 
@@ -129,7 +139,7 @@ fn main() {
                 match  get_ipv4_ethernet_packet(packet) {
                     Some(ether) => {
                         match opt.pattern.as_ref() {
-                            Some(pattern) => search_in_tcp(ether, &pattern),
+                            Some(pattern) => search_in_tcp(ether, &pattern, &dump_path),
                             _ => {}
                         };
                     },
