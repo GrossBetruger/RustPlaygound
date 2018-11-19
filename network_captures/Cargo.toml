@@ -10,4 +10,4 @@ regex = "0.2"
 structopt = "0.2.8"
 custom_derive = "0.1.7"
 enum_derive = "0.1.7"
-
+pcap-file = "0.10.0"

@@ -1,6 +1,7 @@
 extern crate pcap;
 extern crate pnet;
 extern crate regex;
+extern crate pcap_file;
 
 #[macro_use] extern crate structopt;
 #[macro_use] extern crate custom_derive;
@@ -22,6 +23,8 @@ use std::str;
 use pnet::packet::ip::IpNextHeaderProtocols::Tcp;
 use pnet::packet::ip::IpNextHeaderProtocols::Udp;
 use structopt::StructOpt;
+use pcap_file::*;
+use std::fs::File;
 
 fn get_interface(interface_name: &str) -> NetworkInterface {
     let interface_names_match =
@@ -44,11 +47,17 @@ fn get_ipv4_ethernet_packet(packet: &[u8]) -> Option<EthernetPacket>{
                 }
 }
 
-fn search_pattern(pattern: &str, payload: &str) {
+fn search_pattern(pattern: &str, payload: &str) -> bool {
     let re = Regex::new(pattern).unwrap();
-    for cap in re.captures_iter(payload) {
-        println!("found capture: {:?}", cap);
-    }
+    re.is_match(payload)
+}
+
+fn dump_packet(data: &[u8], filename: &str) {
+    let packet = pcap_file::Packet::new(0, 0, data.len() as u32, &data);
+    let file = File::create(filename).expect(&format!("Error creating file: '{}'", filename));
+    let mut pcap_writer = pcap_file::PcapWriter::new(file).unwrap();
+    pcap_writer.write_packet(&packet).unwrap();
+    println!("wrote packet successfully")
 
 }
 
@@ -64,7 +73,10 @@ fn search_in_tcp(ipv4_ethernet_packet: EthernetPacket, pattern: &str) {
                 println!("tcp - from: {}:{} to: {}:{}", src_ip, src_port, dst_ip, dst_port);
                 let tcp_payload = tcp_packet.payload();
 
-                search_pattern(pattern, &String::from_utf8_lossy(&tcp_payload))
+                match search_pattern(pattern, &String::from_utf8_lossy(&tcp_payload)) {
+                    true => dump_packet(ipv4_ethernet_packet.packet(), "dump.pcap"),
+                    _ => {}
+                }
             }
 
         }
@@ -112,18 +124,14 @@ fn main() {
 
     loop {
 
-
         match rx.next() {
             Ok(packet) => {
                 match  get_ipv4_ethernet_packet(packet) {
                     Some(ether) => {
-//                        println!("ether: {:?}", ether);
                         match opt.pattern.as_ref() {
                             Some(pattern) => search_in_tcp(ether, &pattern),
                             _ => {}
-                        }
-//                        println!("found ether!");
-                        ;
+                        };
                     },
                     None => continue
                 }
