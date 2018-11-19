@@ -32,7 +32,7 @@ fn get_interface(interface_name: &str) -> NetworkInterface {
     interfaces.into_iter()
         .filter(interface_names_match)
         .next()
-        .unwrap()
+        .expect(&format!("interface not found: '{}'", interface_name))
 }
 
 
@@ -88,18 +88,19 @@ struct Opt {
 //    #[structopt(long = "format", help = "How to format output")]
 //    format: FormatOutput,
     #[structopt(long = "pattern", help = "Pattern to search")]
-    pattern: Option<Regex>,
+    pattern: Option<String>,
     #[structopt(long = "ip", help = "IP to filter")]
     ip: Option<String>,
     #[structopt(long = "port", help = "Port to filter")]
     port: Option<u16>,
+    #[structopt(long = "interface", help = "Port to filter")]
+    interface: Option<String>,
 }
 
 fn main() {
 
     let opt = Opt::from_args();
-
-    let interface_name = Device::lookup().unwrap().name;
+    let interface_name = opt.interface.unwrap_or("lo".into()); //Device::lookup().unwrap().name;
     println!("capturing from network interface: {}", interface_name);
     let interface = get_interface(&interface_name);
 
@@ -110,12 +111,19 @@ fn main() {
     };
 
     loop {
+
+
         match rx.next() {
             Ok(packet) => {
                 match  get_ipv4_ethernet_packet(packet) {
                     Some(ether) => {
+//                        println!("ether: {:?}", ether);
+                        match opt.pattern.as_ref() {
+                            Some(pattern) => search_in_tcp(ether, &pattern),
+                            _ => {}
+                        }
 //                        println!("found ether!");
-                        search_in_tcp(ether, opt.pattern.unwrap());
+                        ;
                     },
                     None => continue
                 }
