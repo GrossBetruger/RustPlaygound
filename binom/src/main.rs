@@ -50,6 +50,6 @@ fn main() {
     println!("binom of 3 girls and one boy in family of 5: {}", binom(0.5, 5., 3.));
     println!("80% success rate in 5 startups: {}", binom(STARTUP_SUCCESS_RATE, 5., 4.));
     println!("at least 80% success rate in 5 startups: {}", binom_k_greater_equals(STARTUP_SUCCESS_RATE, 5., 4.));
-    println!("700 or more in psychometric :{}", binom_k_greater_equals(0.25, 90., 75.));
+    println!("700 or more in psychometric test :{}", binom_k_greater_equals(0.25, 90., 30.));
 
 }
