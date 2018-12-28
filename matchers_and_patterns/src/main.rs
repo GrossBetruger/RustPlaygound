@@ -26,6 +26,11 @@ fn main() {
     while let Some(top) = stack.pop() {
         println!("TOS popped: '{}'", top);
     }
-    
+
+    let nums = 0..5;
+
+    for (i, num) in nums.rev().enumerate() {
+        println!("index: '{}', num: '{}'", i, num)
+    }
 
 }
