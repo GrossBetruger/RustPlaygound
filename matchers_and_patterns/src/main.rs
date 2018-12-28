@@ -16,5 +16,16 @@ fn main() {
         Ok(some_age) => println!("your age is: '{}'", some_age),
         Err(err) => println!("failed to parse age... reason : {:?}", err)
     }
+    
+    let mut stack = Vec::new();
+
+    for i in 1..7 {
+        stack.push(i);
+    }
+
+    while let Some(top) = stack.pop() {
+        println!("TOS popped: '{}'", top);
+    }
+    
 
 }
