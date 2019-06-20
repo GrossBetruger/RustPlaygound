@@ -1,0 +1,8 @@
+[package]
+name = "is_prime"
+version = "0.1.0"
+authors = ["oren <oren@cynerio.co>"]
+edition = "2018"
+
+[dependencies]
+primes = "*"
